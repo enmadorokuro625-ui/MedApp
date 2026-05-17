@@ -1,0 +1,12 @@
+# Веб и мост ESP (site_api.py, site_server.py, esp_server.py)
+flask>=2.3.0
+flask-cors>=4.0.0
+requests>=2.28.0
+
+# Модуль bones_rec / камера (если запускаете Python-трекер)
+opencv-python>=4.8.0
+mediapipe>=0.10.0
+numpy>=1.24.0
+
+# Утилита extract_js.py (по желанию)
+beautifulsoup4>=4.12.0

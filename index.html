@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BioSignal Monitor</title>
+<style>
+:root {
+  --bg:#080c18;--bg2:#0d1424;--bg3:#111827;
+  --card:#131b2e;--card2:#1a2540;
+  --border:rgba(255,255,255,.07);--border2:rgba(0,255,136,.25);
+  --txt:#e2e8f0;--txt2:#7c8fa6;--txt3:#3d4f63;
+  --green:#00ff88;--orange:#ff6b35;--purple:#a855f7;
+  --blue:#3b82f6;--red:#ef4444;
+  --r-sm:8px;--r-md:14px;--r-lg:22px;--tr:.18s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+nav{position:sticky;top:0;z-index:999;background:rgba(8,12,24,.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);padding:0 28px}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px}
+.brand{display:flex;align-items:center;gap:10px;font-size:1.15rem;font-weight:700;color:var(--txt);cursor:pointer;transition:var(--tr)}
+.brand:hover{color:var(--green)}
+.brand-pulse{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 4px var(--green)}50%{box-shadow:0 0 16px var(--green),0 0 32px rgba(0,255,136,.3)}}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-btn{background:none;border:1px solid transparent;color:var(--txt2);padding:7px 16px;border-radius:var(--r-sm);font-size:.85rem;cursor:pointer;transition:var(--tr);white-space:nowrap}
+.nav-btn:hover{color:var(--txt);background:var(--card2)}
+.nav-btn.active{background:var(--green);color:var(--bg);border-color:var(--green)}
+.nav-sep{width:1px;height:22px;background:var(--border);margin:0 8px}
+.user-chip{background:var(--card2);border:1px solid var(--border2);color:var(--green);padding:5px 14px;border-radius:20px;font-size:.8rem;margin-right:8px}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border-radius:var(--r-sm);border:none;cursor:pointer;font-size:.9rem;font-weight:600;transition:var(--tr);white-space:nowrap;font-family:inherit}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-green{background:var(--green);color:var(--bg)}
+.btn-green:hover:not(:disabled){background:#00d970;box-shadow:0 0 20px rgba(0,255,136,.35);transform:translateY(-1px)}
+.btn-red{background:var(--red);color:#fff}
+.btn-red:hover:not(:disabled){background:#dc2626;box-shadow:0 0 16px rgba(239,68,68,.3)}
+.btn-outline{background:transparent;color:var(--txt);border:1px solid var(--border)}
+.btn-outline:hover:not(:disabled){border-color:var(--green);color:var(--green)}
+.btn-lg{padding:14px 32px;font-size:1rem;border-radius:var(--r-md)}
+.btn-sm{padding:6px 14px;font-size:.8rem}
+.btn-full{width:100%;justify-content:center}
+
+.page{display:none;flex:1;flex-direction:column}
+.page.active{display:flex}
+
+/* LANDING */
+#pg-home{background:radial-gradient(ellipse 60% 50% at 80% 30%,rgba(0,255,136,.06) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 20% 70%,rgba(168,85,247,.06) 0%,transparent 70%),var(--bg)}
+.hero{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;padding:70px 40px 50px}
+.hero-badge{display:inline-block;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:var(--green);padding:6px 18px;border-radius:20px;font-size:.78rem;font-weight:600;margin-bottom:24px;letter-spacing:.5px}
+.hero h1{font-size:2.8rem;font-weight:800;line-height:1.15;letter-spacing:-1.5px;margin-bottom:18px}
+.grad{background:linear-gradient(120deg,var(--green),var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:var(--txt2);font-size:1.05rem;line-height:1.75;margin-bottom:34px;max-width:480px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.hero-visual canvas{border-radius:var(--r-lg);border:1px solid var(--border2);background:var(--card);box-shadow:0 0 50px rgba(0,255,136,.12)}
+.features{max-width:1200px;margin:0 auto;padding:50px 40px 80px}
+.section-title{font-size:1.7rem;font-weight:700;text-align:center;margin-bottom:40px}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:26px;transition:var(--tr)}
+.feat-card:hover{border-color:var(--border2);transform:translateY(-4px);box-shadow:0 0 30px rgba(0,255,136,.1)}
+.feat-icon{font-size:1.9rem;margin-bottom:14px;display:block}
+.feat-card h3{font-size:.95rem;margin-bottom:10px}
+.feat-card p{color:var(--txt2);font-size:.82rem;line-height:1.65}
+
+/* AUTH */
+.auth-wrap{display:flex;justify-content:center;align-items:flex-start;flex:1;padding:50px 20px}
+.auth-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:36px;width:100%;max-width:440px;box-shadow:0 30px 70px rgba(0,0,0,.5)}
+.auth-card.wide{max-width:580px}
+.auth-head{text-align:center;margin-bottom:28px}
+.auth-ico{font-size:2.5rem;display:block;margin-bottom:10px}
+.auth-head h2{font-size:1.5rem;font-weight:700;margin-bottom:6px}
+.auth-head p{color:var(--txt2);font-size:.88rem}
+.form-col{display:flex;flex-direction:column;gap:16px}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:.78rem;font-weight:500;color:var(--txt2)}
+.fg input,.fg select{background:var(--bg2);border:1px solid var(--border);color:var(--txt);padding:10px 14px;border-radius:var(--r-sm);font-size:.88rem;transition:var(--tr);width:100%;font-family:inherit}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(0,255,136,.1)}
+.fg .hint{font-size:.7rem;color:var(--txt3)}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:44px}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:.95rem;opacity:.5;transition:var(--tr)}
+.pw-eye:hover{opacity:1}
+.str-bar{height:4px;background:var(--bg3);border-radius:2px;margin-top:4px;overflow:hidden}
+.str-fill{height:100%;width:0;border-radius:2px;transition:all .35s ease}
+.err{color:var(--red);font-size:.78rem;min-height:18px}
+.auth-foot{text-align:center;margin-top:18px;font-size:.84rem;color:var(--txt2)}
+.auth-foot a{color:var(--green);cursor:pointer}
+.auth-foot a:hover{text-decoration:underline}
+
+/* DASHBOARD */
+#pg-dash{padding:22px 24px 50px}
+.dash-inner{max-width:1400px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.sess-bar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 20px;flex-wrap:wrap;gap:12px}
+.sess-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.conn-status{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--txt2)}
+.conn-dot{width:9px;height:9px;border-radius:50%;background:var(--txt3);transition:var(--tr)}
+.conn-dot.on{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+.rec-badge{display:none;align-items:center;gap:6px;font-size:.76rem;color:var(--red);background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);padding:4px 12px;border-radius:20px}
+.rec-badge.show{display:flex}
+.rec-dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.sess-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sess-input{background:var(--bg2);border:1px solid var(--border);color:var(--txt);padding:8px 14px;border-radius:var(--r-sm);font-size:.84rem;width:220px;font-family:inherit;transition:var(--tr)}
+.sess-input:focus{outline:none;border-color:var(--green)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.m-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:18px;position:relative;overflow:hidden;transition:var(--tr)}
+.m-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
+.m-ecg::after{background:var(--green)}
+.m-str::after{background:var(--red)}
+.m-hr::after{background:var(--blue)}
+.m-emg::after{background:var(--orange)}
+.m-eeg::after{background:var(--purple)}
+.m-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.m-ico{font-size:1.15rem}
+.m-name{font-size:.76rem;font-weight:600;color:var(--txt2)}
+.m-unit{margin-left:auto;font-size:.66rem;background:var(--bg2);border-radius:10px;padding:2px 8px;color:var(--txt3)}
+.m-val{font-family:'Courier New',monospace;font-size:1.9rem;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:4px}
+.m-sub{font-size:.68rem;color:var(--txt3)}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ch-full{grid-column:1/-1}
+.charts-sub{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ch-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;display:flex;flex-direction:column}
+.ch-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ch-head h3{font-size:.85rem;font-weight:600;color:var(--txt2)}
+.ch-acts{display:flex;gap:6px;align-items:center}
+.tag{font-size:.66rem;color:var(--txt3);background:var(--bg2);padding:3px 10px;border-radius:10px}
+.ch-body{flex:1;min-height:140px;position:relative}
+.ch-full .ch-body{min-height:180px}
+.ch-body canvas{width:100%!important;height:100%!important;display:block}
+.log-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden}
+.log-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);font-size:.82rem;color:var(--txt2)}
+.log-body{max-height:150px;overflow-y:auto;padding:6px 0;font-family:'Courier New',monospace;font-size:.74rem}
+.log-row{display:flex;gap:12px;padding:4px 16px;border-left:2px solid transparent}
+.log-t{color:var(--txt3);flex-shrink:0}
+.log-ok{border-color:var(--green);color:#4ade80}
+.log-err{border-color:var(--red);color:#f87171}
+.log-inf{border-color:var(--blue);color:var(--txt2)}
+
+/* PROFILE */
+#pg-profile{padding:40px 24px 60px}
+.prof-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:280px 1fr;gap:22px;align-items:flex-start}
+.prof-side{position:sticky;top:76px;display:flex;flex-direction:column;gap:14px}
+.ava-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:28px 22px;text-align:center}
+.ava-circle{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:800;color:var(--bg);margin:0 auto 14px;text-transform:uppercase}
+.ava-card h2{font-size:1rem;font-weight:700;margin-bottom:8px}
+.role-chip{display:inline-block;padding:4px 14px;border-radius:20px;font-size:.72rem;margin-bottom:6px}
+.role-chip.doctor{background:rgba(59,130,246,.15);color:var(--blue)}
+.role-chip.patient{background:rgba(0,255,136,.1);color:var(--green)}
+.since{font-size:.7rem;color:var(--txt3);display:block;margin-top:6px}
+.stats-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.st-item{text-align:center}
+.st-num{font-size:1.3rem;font-weight:700;color:var(--green);font-family:'Courier New',monospace;display:block;word-break:break-all}
+.st-lbl{font-size:.68rem;color:var(--txt3);margin-top:3px}
+.prof-main{display:flex;flex-direction:column;gap:18px}
+.prof-sect{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:26px}
+.prof-sect h2{font-size:1rem;font-weight:700;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.sess-list{display:flex;flex-direction:column;gap:8px}
+.sess-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);transition:var(--tr);gap:10px;flex-wrap:wrap}
+.sess-item:hover{border-color:var(--border2)}
+.sess-item-detailed{align-items:stretch!important}
+.sess-row-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;width:100%}
+.sess-detail{font-size:.76rem;color:var(--txt2);line-height:1.55;width:100%}
+.sess-stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;width:100%;margin-top:4px}
+.sess-stat-item{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 10px}
+.sess-stat-item b{display:block;font-size:.68rem;color:var(--txt3);font-weight:500;margin-bottom:3px}
+.sess-stat-val{font-family:'Courier New',monospace;font-size:.82rem;font-weight:700;color:var(--txt)}
+.si-name{font-size:.88rem;font-weight:500}
+.si-meta{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.si-date{font-size:.74rem;color:var(--txt3)}
+.si-dur{font-size:.72rem;color:var(--txt2)}
+.del-btn{background:none;border:1px solid var(--border);color:var(--red);padding:4px 12px;border-radius:var(--r-sm);cursor:pointer;font-size:.72rem;transition:var(--tr)}
+.del-btn:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.empty{text-align:center;padding:40px 20px;color:var(--txt3)}
+.empty span{font-size:2.5rem;display:block;margin-bottom:12px}
+.empty a{color:var(--green);cursor:pointer}
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--txt2)}
+.spinner{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 1s linear infinite;margin-right:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+#toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 20px;font-size:.85rem;display:none;z-index:9999;max-width:320px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+#toast.show{display:block;animation:toastIn .3s ease}
+#toast.ok{border-color:var(--green);color:var(--green)}
+#toast.err{border-color:var(--red);color:#f87171}
+@keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+@media(max-width:1000px){.metrics{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}.ch-full{grid-column:1}.charts-sub{grid-template-columns:1fr}}
+@media(max-width:860px){.hero{grid-template-columns:1fr;padding:40px 20px;text-align:center}.hero-visual{display:none}.hero-btns{justify-content:center}.prof-inner{grid-template-columns:1fr}.prof-side{position:static}}
+@media(max-width:580px){.metrics{grid-template-columns:repeat(2,1fr)}.form-row2{grid-template-columns:1fr}.sess-bar{flex-direction:column;align-items:flex-start}.sess-right{width:100%}.sess-input{width:100%}.hero h1{font-size:2rem}}
+
+/* WORKOUT PAGE */
+#pg-workout{padding:22px 24px 50px}
+.wo-inner{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wo-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.wo-header h1{font-size:1.5rem;font-weight:700}
+.gen-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:28px}
+.gen-card h2{font-size:1.05rem;font-weight:700;margin-bottom:18px}
+.gen-form{display:flex;flex-direction:column;gap:14px}
+.gen-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:700px){.gen-row{grid-template-columns:1fr}}
+.plan-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;margin-top:4px}
+.plan-card h2{font-size:1.1rem;font-weight:700;margin-bottom:6px;color:var(--green)}
+.plan-desc{color:var(--txt2);font-size:.85rem;margin-bottom:16px}
+.ex-grid{display:flex;flex-direction:column;gap:10px}
+.ex-item{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-md);transition:var(--tr);gap:12px;flex-wrap:wrap}
+.ex-item:hover{border-color:var(--border2);transform:translateY(-2px)}
+.ex-info h3{font-size:.92rem;font-weight:600;margin-bottom:4px}
+.ex-info p{font-size:.76rem;color:var(--txt2)}
+.ex-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ex-chip{background:var(--bg);border:1px solid var(--border);padding:4px 12px;border-radius:16px;font-size:.72rem;color:var(--txt2);white-space:nowrap}
+.plan-history{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px}
+.plan-history h2{font-size:1rem;font-weight:700;margin-bottom:14px}
+
+/* TRACKER PAGE */
+#pg-tracker{padding:22px 24px 50px}
+.tr-inner{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.tr-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.tr-header h1{font-size:1.3rem;font-weight:700}
+.tr-cam-wrap{position:relative;width:100%;max-width:720px;aspect-ratio:4/3;margin:0 auto;border-radius:var(--r-lg);overflow:hidden;border:2px solid var(--border2);background:#050a14}
+.tr-cam-wrap canvas{width:100%!important;height:100%!important;display:block;border-radius:var(--r-lg);transform:scaleX(-1);transform-origin:center center;-webkit-transform:scaleX(-1);-webkit-transform-origin:center center}
+.tr-hud{position:absolute;top:0;left:0;right:0;padding:14px 18px;background:linear-gradient(180deg,rgba(0,0,0,.7) 0%,transparent 100%);display:flex;justify-content:space-between;align-items:flex-start;z-index:5;pointer-events:none}
+.tr-hud-left,.tr-hud-right{display:flex;flex-direction:column;gap:4px}
+.tr-hud-val{font-family:'Courier New',monospace;font-size:1.6rem;font-weight:700;color:var(--green);text-shadow:0 0 10px rgba(0,255,136,.5)}
+.tr-hud-lbl{font-size:.72rem;color:rgba(255,255,255,.6)}
+.tr-hud-right{align-items:flex-end}
+.tr-hud-stage{font-size:1rem;font-weight:700;padding:4px 14px;border-radius:16px;background:rgba(0,255,136,.2);color:var(--green)}
+.tr-hud-stage.down{background:rgba(239,68,68,.2);color:var(--red)}
+.tr-controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.tr-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tr-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;text-align:center}
+.tr-stat .st-num{font-size:1.5rem;font-weight:700;color:var(--green);font-family:'Courier New',monospace}
+.tr-stat .st-lbl{font-size:.72rem;color:var(--txt3);margin-top:4px}
+
+/* PROGRESS in profile */
+.progress-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.prog-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px;text-align:center}
+.prog-card .st-num{font-size:1.3rem;font-weight:700;color:var(--green);font-family:'Courier New',monospace;display:block}
+.prog-card .st-lbl{font-size:.68rem;color:var(--txt3);margin-top:3px}
+.goal-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:8px}
+.goal-item.done{opacity:.5;border-color:var(--green)}
+.goal-info{font-size:.88rem}
+.goal-info small{color:var(--txt3);font-size:.74rem;display:block;margin-top:2px}
+@media(max-width:700px){.progress-grid{grid-template-columns:repeat(2,1fr)}.tr-stats{grid-template-columns:1fr}}
+
+/* SENSOR HISTORY TABLE */
+.sh-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;margin-top:4px}
+.sh-card h2{font-size:1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.sh-table-wrap{overflow-x:auto;border-radius:var(--r-sm);border:1px solid var(--border)}
+.sh-table{width:100%;border-collapse:collapse;font-size:.82rem;white-space:nowrap}
+.sh-table thead{background:var(--bg2)}
+.sh-table th{padding:10px 14px;text-align:left;font-weight:600;color:var(--txt2);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg2)}
+.sh-table td{padding:9px 14px;border-bottom:1px solid var(--border);color:var(--txt)}
+.sh-table tbody tr{transition:var(--tr)}
+.sh-table tbody tr:hover{background:rgba(0,255,136,.04)}
+.sh-table tbody tr:last-child td{border-bottom:none}
+.sh-state{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.72rem;font-weight:600}
+.sh-state.s-norm{background:rgba(0,255,136,.12);color:var(--green)}
+.sh-state.s-stress{background:rgba(239,68,68,.12);color:var(--red)}
+.sh-state.s-arrhythm{background:rgba(255,107,53,.12);color:var(--orange)}
+.sh-state.s-overload{background:rgba(168,85,247,.12);color:var(--purple)}
+.sh-state.s-wait{background:rgba(124,143,166,.12);color:var(--txt2)}
+.sh-pager{display:flex;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:8px}
+.sh-pager span{font-size:.78rem;color:var(--txt3)}
+.sh-pager-btns{display:flex;gap:6px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="brand" onclick="show('home')"><div class="brand-pulse"></div>BioSignal Monitor</div>
+    <div class="nav-links" id="navLinks"></div>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div class="page active" id="pg-home">
+  <section class="hero">
+    <div>
+      <div class="hero-badge">⚡ Мониторинг биосигналов в реальном времени</div>
+      <h1>Система мониторинга<br><span class="grad">биоэлектрических сигналов</span></h1>
+      <p class="hero-sub">Профессиональный мониторинг ЭКГ, ЭМГ и ЭЭГ с записью сессий, историей измерений и хранением данных на сервере.</p>
+      <div class="hero-btns">
+        <button class="btn btn-green btn-lg" onclick="show('register')">Начать работу →</button>
+        <button class="btn btn-outline btn-lg" onclick="show('login')">Войти в систему</button>
+      </div>
+    </div>
+    <div class="hero-visual"><canvas id="heroCanvas" width="440" height="190"></canvas></div>
+  </section>
+  <section class="features">
+    <h2 class="section-title">Возможности системы</h2>
+    <div class="feat-grid">
+      <div class="feat-card"><span class="feat-icon">❤️</span><h3>ЭКГ мониторинг</h3><p>Электрокардиограмма в реальном времени с анализом PQRST комплекса</p></div>
+      <div class="feat-card"><span class="feat-icon">💪</span><h3>ЭМГ мониторинг</h3><p>Электромиография для оценки мышечной активности</p></div>
+      <div class="feat-card"><span class="feat-icon">🧠</span><h3>ЭЭГ мониторинг</h3><p>Электроэнцефалография с альфа, бета и тета-ритмами</p></div>
+      <div class="feat-card"><span class="feat-icon">💾</span><h3>SQLite база</h3><p>Надёжное хранение пользователей и сессий на сервере</p></div>
+      <div class="feat-card"><span class="feat-icon">👥</span><h3>Пользователи</h3><p>Регистрация и авторизация с ролями: Пациент и Врач</p></div>
+      <div class="feat-card"><span class="feat-icon">📊</span><h3>История</h3><p>Просмотр и управление записанными сессиями</p></div>
+    </div>
+  </section>
+</div>
+
+<!-- LOGIN -->
+<div class="page" id="pg-login">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-head"><span class="auth-ico">🔐</span><h2>Вход в систему</h2><p>Введите ваши учётные данные</p></div>
+      <div class="form-col">
+        <div class="fg"><label>Логин</label><input id="l-user" type="text" placeholder="username"></div>
+        <div class="fg"><label>Пароль</label><div class="pw-wrap"><input id="l-pass" type="password" placeholder="••••••"><button class="pw-eye" onclick="togglePw('l-pass',this)">👁</button></div></div>
+        <div class="err" id="l-err"></div>
+        <button class="btn btn-green btn-full" onclick="doLogin()">Войти</button>
+        <div class="auth-foot">Нет аккаунта? <a onclick="show('register')">Зарегистрироваться</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div class="page" id="pg-register">
+  <div class="auth-wrap">
+    <div class="auth-card wide">
+      <div class="auth-head"><span class="auth-ico">✨</span><h2>Создать аккаунт</h2><p>Заполните форму для регистрации</p></div>
+      <div class="form-col">
+        <div class="form-row2">
+          <div class="fg"><label>Логин *</label><input id="r-user" type="text" placeholder="минимум 3 символа"><span class="hint">Будет использоваться для входа</span></div>
+          <div class="fg"><label>Email *</label><input id="r-email" type="email" placeholder="user@mail.ru"></div>
+        </div>
+        <div class="fg"><label>Полное имя</label><input id="r-name" type="text" placeholder="Иванов Иван Иванович"></div>
+        <div class="form-row2">
+          <div class="fg"><label>Дата рождения</label><input id="r-dob" type="date"></div>
+          <div class="fg"><label>Роль</label><select id="r-role"><option value="Пациент">👤 Пациент</option><option value="Врач">🩺 Врач</option></select></div>
+        </div>
+        <div class="form-row2">
+          <div class="fg"><label>Пароль *</label><div class="pw-wrap"><input id="r-pass" type="password" placeholder="минимум 6 символов" oninput="checkStr(this.value)"><button class="pw-eye" onclick="togglePw('r-pass',this)">👁</button></div><div class="str-bar"><div class="str-fill" id="strFill"></div></div><span class="hint" id="strText">Введите пароль</span></div>
+          <div class="fg"><label>Повтор пароля *</label><div class="pw-wrap"><input id="r-pass2" type="password" placeholder="повторите пароль" oninput="checkMatch()"><button class="pw-eye" onclick="togglePw('r-pass2',this)">👁</button></div><span class="hint" id="matchHint"></span></div>
+        </div>
+        <div class="err" id="r-err"></div>
+        <button class="btn btn-green btn-full" onclick="doRegister()">Создать аккаунт →</button>
+        <div class="auth-foot">Уже есть аккаунт? <a onclick="show('login')">Войти</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page" id="pg-dash">
+  <div class="dash-inner">
+    <div class="sess-bar">
+      <div class="sess-left">
+        <div class="conn-status"><div class="conn-dot on" id="connDot"></div><span id="connLabel">Нажмите «Запись», чтобы считывать данные</span></div>
+        <div class="rec-badge" id="recBadge"><div class="rec-dot"></div> REC</div>
+      </div>
+      <div class="sess-right">
+        <input class="sess-input" id="sessName" placeholder="Название сессии">
+        <button class="btn btn-green btn-sm" id="btnStart" onclick="startRec()">▶ Запись</button>
+        <button class="btn btn-red btn-sm" id="btnStop" onclick="stopRec()" disabled>⏹ Стоп</button>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="m-card m-str"><div class="m-top"><span class="m-ico">😰</span><span class="m-name">Стресс</span><span class="m-unit">%</span></div><div class="m-val" id="v-ecg">—</div><div class="m-sub">По датчику GSR (0–100)</div></div>
+      <div class="m-card m-hr"><div class="m-top"><span class="m-ico">💓</span><span class="m-name">ЧСС</span><span class="m-unit">уд/мин</span></div><div class="m-val" id="v-hr">—</div><div class="m-sub">Частота сердечных сокращений</div></div>
+      <div class="m-card m-emg"><div class="m-top"><span class="m-ico">💪</span><span class="m-name">ЭМГ</span><span class="m-unit">мкВ</span></div><div class="m-val" id="v-emg">—</div><div class="m-sub">Электромиограмма</div></div>
+      <div class="m-card m-eeg"><div class="m-top"><span class="m-ico">🧠</span><span class="m-name">ЭЭГ</span><span class="m-unit">0–100</span></div><div class="m-val" id="v-eeg">—</div><div class="m-sub">Шкала по АЦП 0–4095 (макс. ≈100)</div></div>
+    </div>
+    <div class="charts">
+      <div class="ch-card ch-full"><div class="ch-head"><h3>💓 Пульс (ЧСС) во времени</h3><div class="ch-acts"><span class="tag">уд/мин</span></div></div><div class="ch-body"><canvas id="c-pulse"></canvas></div></div>
+      <div class="charts-sub">
+        <div class="ch-card"><div class="ch-head"><h3>💪 ЭМГ — Электромиограмма</h3><div class="ch-acts"><span class="tag">мкВ</span></div></div><div class="ch-body"><canvas id="c-emg"></canvas></div></div>
+        <div class="ch-card"><div class="ch-head"><h3>🧠 ЭЭГ — активность (нормировка)</h3><div class="ch-acts"><span class="tag">0–100</span></div></div><div class="ch-body"><canvas id="c-eeg"></canvas></div></div>
+        <div class="ch-card"><div class="ch-head"><h3>😰 Стресс (GSR)</h3><div class="ch-acts"><span class="tag">0–100 %</span></div></div><div class="ch-body"><canvas id="c-stress"></canvas></div></div>
+      </div>
+    </div>
+    <div class="log-box">
+      <div class="log-head"><span>📋 Лог событий</span><button class="btn btn-outline btn-sm" onclick="clearLog()">Очистить</button></div>
+      <div class="log-body" id="logBody"><div class="log-row log-inf"><span class="log-t">--:--:--</span><span>Система инициализирована</span></div></div>
+    </div>
+    <div class="sh-card">
+      <h2>📊 История показателей датчиков <button class="btn btn-outline btn-sm" onclick="loadSensorHistory(0)">🔄 Обновить</button></h2>
+      <div id="sensorHistoryContent"><div class="empty"><span>📭</span><p>Нет данных. Подключите датчики для начала записи.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="pg-profile">
+  <div class="prof-inner">
+    <div class="prof-side">
+      <div class="ava-card">
+        <div class="ava-circle" id="avaLetter">?</div>
+        <h2 id="avaName">—</h2>
+        <span class="role-chip" id="avaRole">—</span>
+        <span class="since" id="avaSince">—</span>
+      </div>
+      <div class="stats-card">
+        <div class="st-item"><span class="st-num" id="statSess">0</span><div class="st-lbl">Сессий</div></div>
+        <div class="st-item"><span class="st-num" id="statUser" style="font-size:.85rem">—</span><div class="st-lbl">Логин</div></div>
+      </div>
+      <button class="btn btn-outline btn-full" onclick="refreshProfile()">🔄 Обновить</button>
+    </div>
+    <div class="prof-main" id="profMain"></div>
+  </div>
+</div>
+
+<!-- WORKOUT -->
+<div class="page" id="pg-workout">
+  <div class="wo-inner">
+    <div class="wo-header">
+      <h1>🏋️ Программа тренировок</h1>
+    </div>
+    <div class="gen-card">
+      <h2>✨ Сгенерировать программу через AI</h2>
+      <div class="gen-form">
+        <div class="gen-row">
+          <div class="fg"><label>Цель</label>
+            <select id="wo-goal">
+              <option value="Общий тонус">💪 Общий тонус</option>
+              <option value="Похудение">🔥 Похудение</option>
+              <option value="Набор мышечной массы">🏆 Набор массы</option>
+              <option value="Выносливость">🏃 Выносливость</option>
+              <option value="Реабилитация">🩹 Реабилитация</option>
+            </select>
+          </div>
+          <div class="fg"><label>Сложность</label>
+            <select id="wo-diff">
+              <option value="easy">🟢 Лёгкий</option>
+              <option value="medium" selected>🟡 Средний</option>
+              <option value="hard">🔴 Сложный</option>
+            </select>
+          </div>
+          <div class="fg"><label>Ограничения</label>
+            <input id="wo-limits" type="text" placeholder="например: боли в коленях">
+          </div>
+        </div>
+        <div class="err" id="wo-err"></div>
+        <button class="btn btn-green" id="btnGenerate" onclick="generatePlan()" style="align-self:flex-start">🤖 Сгенерировать программу</button>
+      </div>
+    </div>
+    <div id="currentPlan"></div>
+    <div class="plan-history">
+      <h2>📋 История программ</h2>
+      <div id="planHistory"><div class="empty"><span>📭</span><p>Нет программ. Сгенерируйте первую!</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TRACKER -->
+<div class="page" id="pg-tracker">
+  <div class="tr-inner">
+    <div class="tr-header">
+      <h1 id="trTitle">📷 Трекер упражнений</h1>
+      <button class="btn btn-outline btn-sm" onclick="show('workout')">← Назад</button>
+    </div>
+    <div class="tr-cam-wrap" id="tr3dWrap">
+      <video id="trVideo" style="display:none;" playsinline></video>
+      <canvas id="trCanvas" style="width:100%;height:100%;display:block;border-radius:var(--r-lg)"></canvas>
+      <div class="tr-hud">
+        <div class="tr-hud-left">
+          <div class="tr-hud-val" id="trReps" style="color:#ff6b35">0</div>
+          <div class="tr-hud-lbl">Повторений</div>
+        </div>
+        <div class="tr-hud-right">
+          <div class="tr-hud-stage" id="trStage">IDLE</div>
+          <div class="tr-hud-val" id="trTimer" style="color:#a855f7;margin-top:8px;font-size:1.2rem">00:00</div>
+          <div class="tr-hud-lbl">Время</div>
+        </div>
+      </div>
+    </div>
+    <div class="tr-controls">
+      <button class="btn btn-green" id="btnTrackStart" onclick="startTracking()">▶ Начать</button>
+      <button class="btn btn-red" id="btnTrackStop" onclick="stopTracking()" disabled>⏹ Завершить и сохранить</button>
+    </div>
+    <div class="tr-stats" id="trStatsBar"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// НАСТРОЙКА
+// ═══════════════════════════════════════════════
+const API = 'http://localhost:5000/api';
+// ═══════════════════════════════════════════════
+
+let me = null; // { id, username } — минимум после логина
+
+// ── Fetch helper ──
+async function api(method, path, body) {
+    try {
+        const opts = { method, headers: { 'Content-Type': 'application/json' } };
+        if (body) opts.body = JSON.stringify(body);
+        const res = await fetch(API + path, opts);
+        return await res.json();
+    } catch (e) {
+        return { success: false, message: 'Нет связи с сервером' };
+    }
+}
+
+// ══════════════════════════════════════════
+// НАВИГАЦИЯ
+// ══════════════════════════════════════════
+function show(page) {
+    // Stop camera if leaving tracker
+    if (page !== 'tracker' && typeof mpCamera !== 'undefined' && mpCamera) { mpCamera.stop(); }
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('pg-' + page).classList.add('active');
+    buildNav(page);
+    if (page === 'home') initHeroCanvas();
+    if (page === 'dash') initDash();
+    if (page === 'profile') fillProfile();
+    if (page === 'workout') loadWorkoutPage();
+    window.scrollTo(0, 0);
+}
+
+function buildNav(active) {
+    const c = document.getElementById('navLinks');
+    c.innerHTML = '';
+    if (me) {
+        navBtn(c, 'dash', '📊 Мониторинг', active === 'dash');
+        navBtn(c, 'workout', '🏋️ Тренировки', active === 'workout' || active === 'tracker');
+        navBtn(c, 'profile', '👤 Профиль', active === 'profile');
+        const sep = document.createElement('div'); sep.className = 'nav-sep'; c.appendChild(sep);
+        const chip = document.createElement('span'); chip.className = 'user-chip'; chip.textContent = me.username; c.appendChild(chip);
+        const out = document.createElement('button'); out.className = 'nav-btn'; out.textContent = 'Выйти'; out.onclick = logout; c.appendChild(out);
+    } else {
+        navBtn(c, 'login', 'Войти', active === 'login');
+        const r = document.createElement('button'); r.className = 'nav-btn active'; r.textContent = 'Регистрация'; r.onclick = () => show('register'); c.appendChild(r);
+    }
+}
+function navBtn(c, page, txt, active) {
+    const b = document.createElement('button'); b.className = 'nav-btn' + (active ? ' active' : ''); b.textContent = txt; b.onclick = () => show(page); c.appendChild(b);
+}
+
+// ══════════════════════════════════════════
+// POST /api/register
+// ══════════════════════════════════════════
+async function doRegister() {
+    setErr('r-err', '');
+    if (val('r-pass') !== val('r-pass2')) return setErr('r-err', 'Пароли не совпадают');
+
+    const res = await api('POST', '/register', {
+        username:  val('r-user').trim(),
+        email:     val('r-email').trim(),
+        fullName:  val('r-name').trim(),
+        birthDate: val('r-dob'),
+        role:      val('r-role'),
+        password:  val('r-pass')
+    });
+
+    if (!res.success) return setErr('r-err', res.message);
+
+    toast(res.message, 'ok');
+    show('login');
+}
+
+// ══════════════════════════════════════════
+// POST /api/login
+// ══════════════════════════════════════════
+async function doLogin() {
+    setErr('l-err', '');
+
+    const res = await api('POST', '/login', {
+        username: val('l-user').trim(),
+        password: val('l-pass')
+    });
+
+    if (!res.success) return setErr('l-err', res.message);
+
+    // Сохраняем id и username для дальнейших запросов
+    me = {
+        id: res.user.id,
+        username: res.user.username
+    };
+
+    toast('Добро пожаловать, ' + (res.user.fullName || res.user.username) + '!', 'ok');
+    log('Вход: ' + me.username, 'ok');
+    show('dash');
+}
+
+async function logout() {
+    if (isRec) await stopRec();
+    if (me && me.username) {
+        await api('POST', '/sensor_recording', { username: me.username, active: false });
+    }
+    me = null; started = false;
+    cancelAnimationFrame(raf); raf = null;
+    show('home');
+}
+
+// ══════════════════════════════════════════
+// GET /api/user/{username}  +  Profile UI
+// ══════════════════════════════════════════
+async function fillProfile() {
+    if (!me) return;
+
+    const profMain = document.getElementById('profMain');
+    profMain.innerHTML = '<div class="loading"><div class="spinner"></div>Загрузка профиля...</div>';
+
+    // GET /api/user/{username}
+    const userData = await api('GET', '/user/' + encodeURIComponent(me.username));
+
+    // Ответ: { id, username, email, fullName, role, createdAt }
+    if (userData.success === false || userData.message) {
+        profMain.innerHTML = '<div class="empty"><span>❌</span><p>' + esc(userData.message || 'Ошибка') + '</p></div>';
+        return;
+    }
+
+    // Sidebar
+    document.getElementById('avaLetter').textContent = (userData.fullName || userData.username)[0].toUpperCase();
+    document.getElementById('avaName').textContent = userData.fullName || userData.username;
+
+    const rc = document.getElementById('avaRole');
+    rc.textContent = userData.role === 'Врач' ? '🩺 Врач' : '👤 Пациент';
+    rc.className = 'role-chip ' + (userData.role === 'Врач' ? 'doctor' : 'patient');
+
+    document.getElementById('avaSince').textContent = 'С ' + new Date(userData.createdAt).toLocaleDateString('ru-RU');
+    document.getElementById('statUser').textContent = userData.username;
+
+    // Обновляем me полными данными
+    me = userData;
+
+    // Form
+    profMain.innerHTML = `
+        <div class="prof-sect">
+            <h2>⚙️ Настройки профиля</h2>
+            <div class="form-col">
+                <div class="form-row2">
+                    <div class="fg"><label>Полное имя</label><input id="p-name" type="text" value="${esc(userData.fullName || '')}"></div>
+                    <div class="fg"><label>Email</label><input id="p-email" type="email" value="${esc(userData.email || '')}"></div>
+                </div>
+                <div class="form-row2">
+                    <div class="fg"><label>Роль</label>
+                        <select id="p-role">
+                            <option value="Пациент" ${userData.role === 'Пациент' ? 'selected' : ''}>👤 Пациент</option>
+                            <option value="Врач" ${userData.role === 'Врач' ? 'selected' : ''}>🩺 Врач</option>
+                        </select>
+                    </div>
+                    <div class="fg"><label>Новый пароль</label><input id="p-pass" type="password" placeholder="оставьте пустым"></div>
+                </div>
+                <div class="err" id="p-err"></div>
+                <button class="btn btn-green" style="align-self:flex-start" onclick="saveProfile()">💾 Сохранить</button>
+            </div>
+        </div>
+        <div class="prof-sect">
+            <h2>📋 История сессий</h2>
+            <div id="sessList"><div class="loading"><div class="spinner"></div>Загрузка...</div></div>
+        </div>
+        <div class="prof-sect">
+            <h2>📡 Последние данные с датчиков</h2>
+            <p style="font-size:.78rem;color:var(--txt3);margin:-8px 0 14px">Берётся последняя запись из истории показателей (во время активной «Записи» на мониторинге).</p>
+            <div id="profSensorLatest"><div class="loading"><div class="spinner"></div>Загрузка...</div></div>
+        </div>`;
+
+    await loadSessions();
+    await loadProfileSensorLatest();
+}
+
+async function refreshProfile() {
+    toast('Обновление...', 'ok');
+    await fillProfile();
+    buildNav('profile');
+}
+
+// ══════════════════════════════════════════
+// POST /api/profile
+// ══════════════════════════════════════════
+async function saveProfile() {
+    setErr('p-err', '');
+
+    const res = await api('POST', '/profile', {
+        id:       me.id,
+        fullName: document.getElementById('p-name').value.trim(),
+        email:    document.getElementById('p-email').value.trim(),
+        role:     document.getElementById('p-role').value,
+        password: document.getElementById('p-pass').value
+    });
+
+    if (!res.success) return setErr('p-err', res.message);
+
+    toast(res.message, 'ok');
+    // Перезагружаем через GET /api/user/{username}
+    await fillProfile();
+    buildNav('profile');
+}
+
+// ══════════════════════════════════════════
+// Sessions
+// ══════════════════════════════════════════
+async function loadSessions() {
+    const res = await api('GET', '/sessions?user_id=' + me.id);
+    const list = Array.isArray(res) ? res : [];
+    document.getElementById('statSess').textContent = list.length;
+
+    const el = document.getElementById('sessList');
+    if (!list.length) {
+        el.innerHTML = '<div class="empty"><span>📭</span><p>Нет сессий.<br><a onclick="show(\'dash\')">Начать запись →</a></p></div>';
+        return;
+    }
+    el.innerHTML = '<div class="sess-list">' + list.map(s => {
+        const st = s.start_time || s.start;
+        const en = s.end_time || s.end;
+        const pts = s.data_points ?? s.pts ?? 0;
+        const meta = parseSessionMeta(s);
+        const dur = sessionDurationFromRow(s);
+        const created = s.created_at ? new Date(s.created_at).toLocaleString('ru-RU') : '';
+        const hasStats = meta && (meta.bpm || (meta.sensor_poll_samples && meta.sensor_poll_samples > 0));
+        const statsBlock = hasStats ? `
+            <div class="sess-stat-grid">
+                <div class="sess-stat-item"><b>ЧСС, уд/мин</b><span class="sess-stat-val">${esc(fmtStat3(meta.bpm))}</span><small style="color:var(--txt3);font-size:.65rem">ср. (мин–макс)</small></div>
+                <div class="sess-stat-item"><b>Стресс, %</b><span class="sess-stat-val">${esc(fmtStat3(meta.stress))}</span></div>
+                <div class="sess-stat-item"><b>ЭМГ, %</b><span class="sess-stat-val">${esc(fmtStat3(meta.muscle))}</span></div>
+                <div class="sess-stat-item"><b>ЭЭГ 0–100</b><span class="sess-stat-val">${esc(fmtStat3(meta.eeg))}</span></div>
+            </div>
+            <div class="sess-detail" style="font-size:.72rem;margin-top:2px">Замеров с датчиков: ${meta.sensor_poll_samples != null ? meta.sensor_poll_samples : '—'} · Кадров интерфейса: ${meta.ui_frames != null ? meta.ui_frames : pts}${meta.last_state ? ' · Состояние: ' + esc(meta.last_state) : ''}</div>` : `
+            <div class="sess-detail" style="font-size:.72rem;opacity:.85">Для этой записи нет агрегированной статистики (старые сессии). Новые сессии сохраняют средние и диапазоны по датчикам.</div>`;
+
+        return `
+        <div class="sess-item sess-item-detailed">
+            <div class="sess-row-top">
+                <div style="flex:1;min-width:0">
+                    <div class="si-name">${esc(s.name)} <span style="color:var(--txt3);font-weight:500;font-size:.78rem">#${s.id}</span></div>
+                    <div class="sess-detail" style="margin-top:8px">
+                        <strong>Начало записи:</strong> ${st ? esc(new Date(st).toLocaleString('ru-RU')) : '—'}<br>
+                        <strong>Конец записи:</strong> ${en ? esc(new Date(en).toLocaleString('ru-RU')) : '—'}<br>
+                        <strong>Длительность:</strong> ${esc(formatSessionDuration(dur))}<br>
+                        <strong>Кадров мониторинга (UI):</strong> ${pts}${created ? '<br><strong>Запись в БД:</strong> ' + esc(created) : ''}
+                    </div>
+                </div>
+                <button class="del-btn" onclick="delSess(${s.id})">🗑 Удалить</button>
+            </div>
+            ${statsBlock}
+        </div>`;
+    }).join('') + '</div>';
+}
+
+async function loadProfileSensorLatest() {
+    const wrap = document.getElementById('profSensorLatest');
+    if (!wrap || !me || !me.username) return;
+    const res = await api('GET', '/sensor_history?username=' + encodeURIComponent(me.username) + '&limit=1&offset=0');
+    if (!res.success || !res.data || !res.data.length) {
+        wrap.innerHTML = '<div class="empty"><span>📭</span><p>Нет сохранённых показателей. На странице мониторинга нажмите «Запись», чтобы данные с датчиков сохранялись.</p></div>';
+        return;
+    }
+    const r = res.data[0];
+    const dt = r.recorded_at ? new Date(r.recorded_at).toLocaleString('ru-RU') : '—';
+    wrap.innerHTML = `
+        <div class="progress-grid" style="margin-bottom:0">
+            <div class="prog-card"><span class="st-num">${Math.round(Number(r.bpm) || 0)}</span><div class="st-lbl">ЧСС</div></div>
+            <div class="prog-card"><span class="st-num">${Math.round(Number(r.stress) || 0)}%</span><div class="st-lbl">Стресс</div></div>
+            <div class="prog-card"><span class="st-num">${Math.round(Number(r.muscle) || 0)}%</span><div class="st-lbl">ЭМГ</div></div>
+            <div class="prog-card"><span class="st-num">${Math.round(Number(r.alpha) || 0)}</span><div class="st-lbl">ЭЭГ 0–100</div></div>
+        </div>
+        <p style="margin-top:12px;font-size:.8rem;color:var(--txt3)">Время записи: ${esc(dt)} · Состояние: <strong style="color:var(--txt2)">${esc(r.state || '—')}</strong></p>`;
+}
+
+async function delSess(id) {
+    const res = await api('DELETE', '/sessions', { id, user_id: me.id });
+    if (res.success) toast(res.message, 'ok');
+    await loadSessions();
+}
+
+// ══════════════════════════════════════════
+// Recording
+// ══════════════════════════════════════════
+let isRec = false, recStart = '', recPts = 0;
+let recSessionSamples = { bpm: [], stress: [], muscle: [], alpha: [] };
+
+function captureSessionSample() {
+    if (!isRec) return;
+    recSessionSamples.bpm.push(Number(espData.bpm) || 0);
+    recSessionSamples.stress.push(Number(espData.stress) || 0);
+    recSessionSamples.muscle.push(Number(espData.muscle) || 0);
+    recSessionSamples.alpha.push(Number(espData.alpha) || 0);
+}
+
+function aggSamples(arr) {
+    const v = (arr || []).filter(x => typeof x === 'number' && !isNaN(x));
+    if (!v.length) return null;
+    const sum = v.reduce((a, b) => a + b, 0);
+    const avg = Math.round((sum / v.length) * 10) / 10;
+    return { avg, min: Math.min(...v), max: Math.max(...v) };
+}
+
+function formatSessionDuration(sec) {
+    if (sec == null || sec < 0 || !isFinite(sec)) return '—';
+    const s = Math.floor(sec % 60);
+    const m = Math.floor(sec / 60);
+    if (m <= 0) return s + ' с';
+    return m + ' мин ' + String(s).padStart(2, '0') + ' с';
+}
+
+function parseSessionMeta(s) {
+    if (!s || !s.meta_json) return null;
+    try { return JSON.parse(s.meta_json); } catch (e) { return null; }
+}
+
+function sessionDurationFromRow(s) {
+    const meta = parseSessionMeta(s);
+    if (meta && typeof meta.duration_sec === 'number' && meta.duration_sec >= 0) return meta.duration_sec;
+    const st = s.start_time || s.start;
+    const en = s.end_time || s.end;
+    if (st && en) {
+        const a = new Date(st).getTime(), b = new Date(en).getTime();
+        if (!isNaN(a) && !isNaN(b) && b >= a) return Math.round((b - a) / 1000);
+    }
+    return null;
+}
+
+function fmtStat3(x) {
+    if (!x || typeof x.avg !== 'number') return '—';
+    return x.avg + ' (' + x.min + '–' + x.max + ')';
+}
+
+async function startRec() {
+    if (!me || !me.username) {
+        toast('Войдите в систему', 'err');
+        return;
+    }
+    await api('POST', '/sensor_recording', { username: me.username, active: true });
+    recStart = new Date().toISOString();
+    recPts = 0;
+    recSessionSamples = { bpm: [], stress: [], muscle: [], alpha: [] };
+    isRec = true;
+    fillChartBuffersFromEspData();
+    document.getElementById('btnStart').disabled = true;
+    document.getElementById('btnStop').disabled = false;
+    document.getElementById('recBadge').classList.add('show');
+    const conn = document.getElementById('connLabel');
+    if (conn) conn.textContent = 'Идёт приём данных с датчиков';
+    log('Запись начата, приём данных с ESP включён', 'ok');
+}
+
+async function stopRec() {
+    isRec = false;
+    if (me && me.username) {
+        await api('POST', '/sensor_recording', { username: me.username, active: false });
+    }
+    document.getElementById('btnStart').disabled = false;
+    document.getElementById('btnStop').disabled = true;
+    document.getElementById('recBadge').classList.remove('show');
+    const conn = document.getElementById('connLabel');
+    if (conn) conn.textContent = 'Нажмите «Запись», чтобы считывать данные';
+
+    const name = document.getElementById('sessName').value.trim() || 'Сессия ' + new Date().toLocaleString('ru-RU');
+    const endIso = new Date().toISOString();
+    const duration_sec = recStart ? Math.round((new Date(endIso) - new Date(recStart)) / 1000) : 0;
+    const meta = {
+        duration_sec,
+        ui_frames: recPts,
+        sensor_poll_samples: recSessionSamples.bpm.length,
+        bpm: aggSamples(recSessionSamples.bpm),
+        stress: aggSamples(recSessionSamples.stress),
+        muscle: aggSamples(recSessionSamples.muscle),
+        eeg: aggSamples(recSessionSamples.alpha),
+        last_state: espData.state || null
+    };
+
+    if (me && me.id) {
+        const res = await api('POST', '/sessions', {
+            user_id: me.id,
+            name,
+            start: recStart,
+            end: endIso,
+            pts: recPts,
+            meta
+        });
+
+        if (res.success) {
+            toast('Сессия сохранена', 'ok');
+            log('Сессия "' + name + '" — ' + recPts + ' точек', 'ok');
+        }
+    }
+    await loadLatestSensorSnapshot();
+    loadSensorHistory(0);
+}
+
+// ══════════════════════════════════════════
+// Simulator
+// ══════════════════════════════════════════
+let T = 0, raf = null, started = false, lastTs = 0;
+let espData = { success: false, bpm: 0, stress: 0, muscle: 0, alpha: 0, beta: 0, state: 'Ожидание' };
+const N = 280;
+const buf = { pulse: new Array(N).fill(72), emg: new Array(N).fill(0), eeg: new Array(N).fill(0), stress: new Array(N).fill(0) };
+
+function genECG() {
+    const t = T % (2 * Math.PI);
+    return 1.5*Math.exp(-((t-1.6)**2)/.005)+.25*Math.exp(-((t-1)**2)/.02)-.1*Math.exp(-((t-1.4)**2)/.005)-.3*Math.exp(-((t-1.8)**2)/.005)+.35*Math.exp(-((t-2.5)**2)/.04)+(Math.random()-.5)*.03;
+}
+function genEMG() { return (Math.random()-.5)*200*Math.abs(Math.sin(T*.4)); }
+function genEEG() { return 20*Math.sin(20*Math.PI*T)+8*Math.sin(40*Math.PI*T)+(Math.random()-.5)*8; }
+function genHR()  { return Math.round(72+5*Math.sin(T*.1)+(Math.random()-.5)*2); }
+
+function initDash() { if (started) return; started = true; log('Мониторинг запущен', 'ok'); requestAnimationFrame(loop); }
+
+function fillChartBuffersFromEspData() {
+    const hr = Math.round(Number(espData.bpm) || 0) || 72;
+    const em = Number(espData.muscle) || 0;
+    const eg = Number(espData.alpha) || 0;
+    const st = Number(espData.stress) || 0;
+    for (let i = 0; i < N; i++) {
+        buf.pulse[i] = hr;
+        buf.emg[i] = em;
+        buf.eeg[i] = eg;
+        buf.stress[i] = st;
+    }
+}
+
+async function loadLatestSensorSnapshot() {
+    if (!me || !me.username) return;
+    const res = await api('GET', '/sensor_history?username=' + encodeURIComponent(me.username) + '&limit=1&offset=0');
+    if (res.success && res.data && res.data.length) {
+        const r = res.data[0];
+        espData = {
+            success: true,
+            bpm: Number(r.bpm) || 0,
+            stress: Number(r.stress) || 0,
+            muscle: Number(r.muscle) || 0,
+            alpha: Number(r.alpha) || 0,
+            beta: Number(r.beta) || 0,
+            state: r.state || 'Ожидание'
+        };
+    }
+}
+
+async function loop(ts) {
+    raf = requestAnimationFrame(loop);
+    
+    // Опрашиваем API раз в 200мс
+    if (ts - lastTs > 200) {
+        lastTs = ts;
+        const dashEl = document.getElementById('pg-dash');
+        const onDash = dashEl && dashEl.classList.contains('active');
+        if (me && me.username && onDash && isRec) {
+            try {
+                const res = await api('GET', '/last_data?username=' + encodeURIComponent(me.username));
+                if (res && typeof res.bpm !== 'undefined') {
+                    espData = Object.assign({}, espData, res);
+                    espData.success = true;
+                    captureSessionSample();
+                }
+            } catch (e) {
+                console.error("Ошибка получения данных ESP:", e);
+            }
+        }
+    }
+
+    // Распределяем данные по твоим ID из HTML:
+
+    // 1. ЧСС (Пульс) -> v-hr (на сервере ограничено ~150)
+    const hr = Math.round(Number(espData.bpm) || 0);
+    setVal('v-hr', hr, hr < 60 ? '#3b82f6' : hr > 100 ? '#ef4444' : '#00ff88');
+    
+    // 2. Стресс (GSR) -> v-ecg
+    setVal('v-ecg', espData.stress);
+
+    // 3. ЭМГ (Мышцы) -> v-emg
+    setVal('v-emg', espData.muscle);
+
+    // 4. ЭЭГ (амплитуда 0–100 по АЦП) -> v-eeg
+    setVal('v-eeg', Math.round(Number(espData.alpha) || 0));
+
+    // Графики: новые точки только во время записи (иначе «заморозка» последнего кадра)
+    const hrPlot = hr > 0 ? hr : (buf.pulse[buf.pulse.length - 1] || 72);
+    draw('c-pulse', buf.pulse, '#3b82f6', 40, 160);
+    draw('c-emg', buf.emg, '#ff6b35', 0, 100);
+    draw('c-eeg', buf.eeg, '#a855f7', 0, 100);
+    draw('c-stress', buf.stress, '#ef4444', 0, 100);
+
+    if (isRec) {
+        buf.pulse.push(hrPlot);
+        buf.pulse.shift();
+        buf.emg.push(Number(espData.muscle) || 0);
+        buf.emg.shift();
+        buf.eeg.push(Number(espData.alpha) || 0);
+        buf.eeg.shift();
+        buf.stress.push(Number(espData.stress) || 0);
+        buf.stress.shift();
+        recPts++;
+    }
+}
+
+function draw(id, data, color, min, max) {
+    const cv = document.getElementById(id); if (!cv) return;
+    if (!data || data.length < 2) return;
+    const p = cv.parentElement;
+    const W = p.clientWidth || 600;
+    const H = Math.max(120, p.clientHeight || 150);
+    if (cv.width!==W) cv.width=W;
+    if (cv.height!==H) cv.height=H;
+    const ctx = cv.getContext('2d');
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=color+'08'; ctx.fillRect(0,0,W,H);
+
+    ctx.strokeStyle=color+'12'; ctx.lineWidth=1;
+    for(let i=0;i<=8;i++){const x=i/8*W;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let i=0;i<=4;i++){const y=i/4*H;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+    const zY=H-((0-min)/(max-min))*H;
+    ctx.strokeStyle=color+'30';ctx.setLineDash([4,5]);ctx.beginPath();ctx.moveTo(0,zY);ctx.lineTo(W,zY);ctx.stroke();ctx.setLineDash([]);
+
+    ctx.fillStyle=color+'55';ctx.font='10px monospace';
+    ctx.fillText(max,3,12);ctx.fillText('0',3,zY-2);ctx.fillText(min,3,H-3);
+
+    const grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,color+'25');grad.addColorStop(1,color+'00');
+    function getY(v){return H-((Math.max(min,Math.min(max,v))-min)/(max-min))*H;}
+    const xDen = Math.max(1, data.length - 1);
+
+    ctx.beginPath();
+    data.forEach((v,i)=>{const x=i/xDen*W;const y=getY(v);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+
+    ctx.beginPath();
+    data.forEach((v,i)=>{const x=i/xDen*W;const y=getY(v);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.strokeStyle=color;ctx.lineWidth=1.8;ctx.shadowBlur=7;ctx.shadowColor=color+'80';ctx.stroke();ctx.shadowBlur=0;
+
+    const lx=W-2,ly=getY(data[data.length-1]);
+    ctx.beginPath();ctx.arc(lx,ly,4,0,Math.PI*2);ctx.fillStyle='#fff';ctx.shadowBlur=10;ctx.shadowColor=color;ctx.fill();ctx.shadowBlur=0;
+}
+
+// ── Hero Canvas ──
+let heroT=0, heroRaf=null;
+function initHeroCanvas(){
+    const cv=document.getElementById('heroCanvas');if(!cv)return;
+    const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+    const d=new Array(W).fill(0);
+    function f(){
+        ctx.clearRect(0,0,W,H);
+        ctx.strokeStyle='rgba(0,255,136,.09)';ctx.lineWidth=1;
+        for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+        for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+        const t=heroT%(2*Math.PI);
+        const v=1.5*Math.exp(-((t-1.6)**2)/.005)+.25*Math.exp(-((t-1)**2)/.02)+.35*Math.exp(-((t-2.5)**2)/.04)+(Math.random()-.5)*.025;
+        d.push(v);d.shift();heroT+=.055;
+        const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgba(0,255,136,.18)');g.addColorStop(1,'rgba(0,255,136,0)');
+        ctx.beginPath();d.forEach((v,i)=>{const x=i/d.length*W,y=H/2-v*55;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+        ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+        ctx.beginPath();d.forEach((v,i)=>{const x=i/d.length*W,y=H/2-v*55;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+        ctx.strokeStyle='#00ff88';ctx.lineWidth=2;ctx.shadowBlur=8;ctx.shadowColor='rgba(0,255,136,.5)';ctx.stroke();ctx.shadowBlur=0;
+        heroRaf=requestAnimationFrame(f);
+    }
+    if(heroRaf)cancelAnimationFrame(heroRaf);f();
+}
+
+// ── Log ──
+function log(msg,type='inf'){
+    const el=document.getElementById('logBody');if(!el)return;
+    const t=new Date().toTimeString().substring(0,8);
+    const r=document.createElement('div');r.className='log-row log-'+type;
+    r.innerHTML=`<span class="log-t">${t}</span><span>${esc(msg)}</span>`;
+    el.insertBefore(r,el.firstChild);
+    while(el.children.length>50)el.removeChild(el.lastChild);
+}
+function clearLog(){const el=document.getElementById('logBody');if(el)el.innerHTML='';}
+
+// ── Helpers ──
+function val(id){const e=document.getElementById(id);return e?e.value:'';}
+function setErr(id,msg){const e=document.getElementById(id);if(e)e.textContent=msg;}
+function setVal(id,v,c){const e=document.getElementById(id);if(!e)return;e.textContent=v;if(c)e.style.color=c;}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className='show '+(t==='ok'?'ok':'err');clearTimeout(e._t);e._t=setTimeout(()=>e.className='',3500);}
+function togglePw(id,btn){const e=document.getElementById(id);if(!e)return;e.type=e.type==='password'?'text':'password';btn.textContent=e.type==='password'?'👁':'🙈';}
+
+function checkStr(pw){
+    const fill=document.getElementById('strFill'),txt=document.getElementById('strText');if(!fill||!txt)return;
+    let s=0;if(pw.length>=6)s++;if(pw.length>=10)s++;if(/[A-Z]/.test(pw))s++;if(/[0-9]/.test(pw))s++;if(/[^A-Za-z0-9]/.test(pw))s++;
+    const l=[{c:'#ef4444',l:'Очень слабый',w:'20%'},{c:'#f97316',l:'Слабый',w:'40%'},{c:'#f59e0b',l:'Средний',w:'60%'},{c:'#84cc16',l:'Хороший',w:'80%'},{c:'#22c55e',l:'Отличный',w:'100%'}][Math.max(0,Math.min(s-1,4))];
+    fill.style.width=pw?l.w:'0';fill.style.background=l.c;txt.textContent=pw?l.l:'Введите пароль';txt.style.color=pw?l.c:'';
+}
+function checkMatch(){
+    const p1=val('r-pass'),p2=val('r-pass2'),el=document.getElementById('matchHint');if(!el)return;
+    if(!p2){el.textContent='';return;}
+    if(p1===p2){el.textContent='✓ Совпадают';el.style.color='#22c55e';}
+    else{el.textContent='✗ Не совпадают';el.style.color='#ef4444';}
+}
+
+document.addEventListener('keydown',e=>{
+    if(e.key!=='Enter')return;
+    const pg=document.querySelector('.page.active');
+    if(pg.id==='pg-login')doLogin();
+    if(pg.id==='pg-register')doRegister();
+});
+
+buildNav('home');
+initHeroCanvas();
+
+// ══════════════════════════════════════════
+// EXERCISE DEFINITIONS (port from Python)
+// ══════════════════════════════════════════
+const EXERCISES = {
+    push_ups:       { name:'Отжимания',          pts:[12,14,16], thresholds:{easy:{d:110,u:150},medium:{d:90,u:160},hard:{d:70,u:170}} },
+    squats:         { name:'Приседания',          pts:[24,26,28], thresholds:{easy:{d:120,u:160},medium:{d:100,u:170},hard:{d:80,u:175}} },
+    bicep_curls:    { name:'Сгибание на бицепс',  pts:[12,14,16], thresholds:{easy:{d:70,u:150},medium:{d:50,u:160},hard:{d:40,u:170}} },
+    shoulder_press: { name:'Жим над головой',     pts:[24,12,14], thresholds:{easy:{d:100,u:150},medium:{d:80,u:160},hard:{d:60,u:170}} },
+    lunges:         { name:'Выпады',              pts:[24,26,28], thresholds:{easy:{d:130,u:165},medium:{d:110,u:170},hard:{d:90,u:175}} },
+    jumping_jacks:  { name:'Джампинг Джек',       pts:[24,12,16], thresholds:{easy:{d:50,u:140},medium:{d:40,u:155},hard:{d:30,u:170}} },
+    sit_ups:        { name:'Скручивания',         pts:[12,24,26], thresholds:{easy:{d:120,u:155},medium:{d:100,u:160},hard:{d:80,u:170}} },
+    high_knees:     { name:'Высокие колени',      pts:[12,24,26], thresholds:{easy:{d:130,u:165},medium:{d:110,u:170},hard:{d:90,u:175}} },
+};
+
+function calcAngle(a, b, c) {
+    const ba = [a.x - b.x, a.y - b.y];
+    const bc = [c.x - b.x, c.y - b.y];
+    const dot = ba[0]*bc[0] + ba[1]*bc[1];
+    const magBA = Math.sqrt(ba[0]**2 + ba[1]**2);
+    const magBC = Math.sqrt(bc[0]**2 + bc[1]**2);
+    const cos = dot / (magBA * magBC + 1e-6);
+    return Math.acos(Math.max(-1, Math.min(1, cos))) * 180 / Math.PI;
+}
+
+// ══════════════════════════════════════════
+// WORKOUT PAGE
+// ══════════════════════════════════════════
+let currentPlanId = null, currentPlanData = null;
+
+async function loadWorkoutPage() {
+    if (!me) return;
+    await loadPlanHistory();
+}
+
+async function generatePlan() {
+    if (!me) return;
+    setErr('wo-err', '');
+    const btn = document.getElementById('btnGenerate');
+    btn.disabled = true; btn.textContent = '⏳ Генерация...';
+
+    const res = await api('POST', '/workout/generate', {
+        user_id: me.id,
+        goal: val('wo-goal'),
+        difficulty: val('wo-diff'),
+        limitations: val('wo-limits').trim()
+    });
+
+    btn.disabled = false; btn.textContent = '🤖 Сгенерировать программу';
+    if (!res.success) return setErr('wo-err', res.message);
+
+    currentPlanId = res.plan_id;
+    currentPlanData = res.plan;
+    renderPlan(res.plan, val('wo-diff'));
+    toast('Программа сгенерирована!', 'ok');
+    await loadPlanHistory();
+}
+
+function renderPlan(plan, difficulty) {
+    const el = document.getElementById('currentPlan');
+    const diffLabel = {easy:'🟢 Лёгкий',medium:'🟡 Средний',hard:'🔴 Сложный'}[difficulty]||difficulty;
+    el.innerHTML = `
+        <div class="plan-card">
+            <h2>${esc(plan.name||'Программа тренировки')}</h2>
+            <p class="plan-desc">${esc(plan.description||'')} <span class="ex-chip">${diffLabel}</span></p>
+            <div class="ex-grid">${(plan.exercises||[]).map(ex => `
+                <div class="ex-item">
+                    <div class="ex-info">
+                        <h3>${esc(ex.name)}</h3>
+                        <p>${esc(ex.tips||'')}</p>
+                    </div>
+                    <div class="ex-meta">
+                        <span class="ex-chip">${ex.sets} × ${ex.reps}</span>
+                        <span class="ex-chip">⏱ ${ex.rest_sec}с отдых</span>
+                        ${EXERCISES[ex.id] ? `<button class="btn btn-green btn-sm" onclick="openTracker('${esc(ex.id)}','${esc(difficulty)}')">▶ Начать</button>` : `<span class="ex-chip" style="color:var(--txt3)">без трекинга</span>`}
+                    </div>
+                </div>`).join('')}
+            </div>
+        </div>`;
+}
+
+async function loadPlanHistory() {
+    if (!me) return;
+    const plans = await api('GET', '/workout/plans?user_id=' + me.id);
+    const el = document.getElementById('planHistory');
+    if (!Array.isArray(plans) || !plans.length) {
+        el.innerHTML = '<div class="empty"><span>📭</span><p>Нет программ. Сгенерируйте первую!</p></div>';
+        return;
+    }
+    el.innerHTML = '<div class="sess-list">' + plans.map(p => `
+        <div class="sess-item" style="cursor:pointer" onclick='showHistoryPlan(${JSON.stringify(p.plan).replace(/'/g,"&#39;")}, "${esc(p.difficulty)}")'>
+            <div>
+                <div class="si-name">${esc(p.plan.name || 'Программа')}</div>
+                <div class="si-meta">
+                    <span class="si-date">${p.created_at ? new Date(p.created_at).toLocaleString('ru-RU') : ''}</span>
+                    <span class="si-dur">${esc(p.goal||'')} • ${({easy:'Лёгкий',medium:'Средний',hard:'Сложный'})[p.difficulty]||p.difficulty}</span>
+                </div>
+            </div>
+        </div>`).join('') + '</div>';
+}
+
+function showHistoryPlan(plan, difficulty) {
+    currentPlanData = plan;
+    renderPlan(plan, difficulty);
+    window.scrollTo({top: document.getElementById('currentPlan').offsetTop - 80, behavior:'smooth'});
+}
+
+// ══════════════════════════════════════════
+// TRACKER — MediaPipe
+// ══════════════════════════════════════════
+let trExId = null, trDiff = 'medium', trReps = 0, trActive = false;
+let trStartTime = null, trTimerInterval = null;
+
+let mpPose = null;
+let mpCamera = null;
+let trStageState = 'IDLE';
+
+function initMediaPipe() {
+    if (mpPose) return;
+    const videoElement = document.getElementById('trVideo');
+    const canvasElement = document.getElementById('trCanvas');
+    const canvasCtx = canvasElement.getContext('2d');
+
+    mpPose = new Pose({locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+    }});
+    
+    mpPose.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+    });
+    
+    mpPose.onResults((results) => {
+        canvasElement.width = videoElement.videoWidth || 640;
+        canvasElement.height = videoElement.videoHeight || 480;
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+        canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+        
+        if (results.poseLandmarks) {
+            drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#00FF00', lineWidth: 4});
+            drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#FF0000', lineWidth: 2});
+        }
+        canvasCtx.restore();
+
+        if (results.poseLandmarks) {
+            if (trActive && trExId && EXERCISES[trExId]) {
+                const ex = EXERCISES[trExId];
+                const pts = ex.pts;
+                
+                // Получаем 3 точки для угла
+                const pA = results.poseLandmarks[pts[0]];
+                const pB = results.poseLandmarks[pts[1]];
+                const pC = results.poseLandmarks[pts[2]];
+                
+                if (pA && pB && pC && pA.visibility > 0.5 && pB.visibility > 0.5 && pC.visibility > 0.5) {
+                    const angle = calcAngle(
+                        {x: pA.x * canvasElement.width, y: pA.y * canvasElement.height},
+                        {x: pB.x * canvasElement.width, y: pB.y * canvasElement.height},
+                        {x: pC.x * canvasElement.width, y: pC.y * canvasElement.height}
+                    );
+                    
+                    const thresh = ex.thresholds[trDiff] || ex.thresholds['medium'];
+                    
+                    if (trStageState === 'IDLE') {
+                        if (angle > thresh.u) trStageState = 'UP';
+                        else if (angle < thresh.d) trStageState = 'DOWN';
+                    } else if (trStageState === 'UP') {
+                        if (angle < thresh.d) trStageState = 'DOWN';
+                    } else if (trStageState === 'DOWN') {
+                        if (angle > thresh.u) {
+                            trStageState = 'UP';
+                            trReps++;
+                            document.getElementById('trReps').textContent = trReps;
+                        }
+                    }
+                    
+                    // Обновляем HUD
+                    const stageEl = document.getElementById('trStage');
+                    if (trStageState === 'DOWN') {
+                        stageEl.textContent = 'DOWN';
+                        stageEl.className = 'tr-hud-stage down';
+                    } else {
+                        stageEl.textContent = 'UP';
+                        stageEl.className = 'tr-hud-stage';
+                    }
+                }
+            }
+        }
+    });
+
+    mpCamera = new Camera(videoElement, {
+        onFrame: async () => {
+            await mpPose.send({image: videoElement});
+        },
+        width: 640,
+        height: 480
+    });
+}
+
+function openTracker(exerciseId, difficulty) {
+    trExId = exerciseId;
+    trDiff = difficulty || 'medium';
+    trReps = 0; trActive = false;
+    trStageState = 'IDLE';
+
+    const ex = EXERCISES[exerciseId];
+    document.getElementById('trTitle').textContent = '🦴 ' + (ex ? ex.name : exerciseId);
+    document.getElementById('trReps').textContent = '0';
+    document.getElementById('trStage').textContent = 'IDLE';
+    document.getElementById('trStage').className = 'tr-hud-stage';
+    document.getElementById('trTimer').textContent = '00:00';
+    document.getElementById('btnTrackStart').disabled = false;
+    document.getElementById('btnTrackStop').disabled = true;
+    document.getElementById('trStatsBar').innerHTML = '';
+
+    show('tracker');
+    initMediaPipe();
+    if (mpCamera) mpCamera.start();
+}
+
+function startTracking() {
+    trActive = true; trReps = 0; sk3dT = 0;
+    trStartTime = Date.now();
+    document.getElementById('btnTrackStart').disabled = true;
+    document.getElementById('btnTrackStop').disabled = false;
+    document.getElementById('trReps').textContent = '0';
+
+    clearInterval(trTimerInterval);
+    trTimerInterval = setInterval(() => {
+        const sec = Math.floor((Date.now() - trStartTime) / 1000);
+        const m = String(Math.floor(sec/60)).padStart(2,'0');
+        const s = String(sec%60).padStart(2,'0');
+        document.getElementById('trTimer').textContent = m + ':' + s;
+    }, 500);
+}
+
+async function stopTracking() {
+    trActive = false;
+    clearInterval(trTimerInterval);
+    document.getElementById('btnTrackStart').disabled = false;
+    document.getElementById('btnTrackStop').disabled = true;
+
+    const durSec = trStartTime ? Math.floor((Date.now() - trStartTime) / 1000) : 0;
+    const ex = EXERCISES[trExId];
+
+    document.getElementById('trStatsBar').innerHTML = `
+        <div class="tr-stat"><div class="st-num">${trReps}</div><div class="st-lbl">Повторений</div></div>
+        <div class="tr-stat"><div class="st-num">${Math.floor(durSec/60)}:${String(durSec%60).padStart(2,'0')}</div><div class="st-lbl">Время</div></div>
+        <div class="tr-stat"><div class="st-num">${({easy:'Лёгкий',medium:'Средний',hard:'Сложный'})[trDiff]||trDiff}</div><div class="st-lbl">Сложность</div></div>`;
+
+    if (!me || trReps === 0) return;
+
+    const res = await api('POST', '/workout/log', {
+        user_id: me.id,
+        plan_id: currentPlanId,
+        exercise_id: trExId,
+        exercise_name: ex ? ex.name : trExId,
+        reps: trReps,
+        difficulty: trDiff,
+        duration_sec: durSec
+    });
+
+    if (res.success) toast(res.message, 'ok');
+    else toast(res.message || 'Ошибка сохранения', 'err');
+}
+
+
+
+
+// ══════════════════════════════════════════
+// PROGRESS — extends fillProfile
+// ══════════════════════════════════════════
+const _originalFillProfile = typeof fillProfile === 'function' ? fillProfile : null;
+
+// We monkey-patch fillProfile to add progress section
+(function(){
+    const _orig = fillProfile;
+    fillProfile = async function() {
+        await _orig();
+        if (!me) return;
+        await appendProgressSection();
+    };
+})();
+
+async function appendProgressSection() {
+    const profMain = document.getElementById('profMain');
+    if (!profMain || !me) return;
+
+    // Load stats
+    const stats = await api('GET', '/workout/stats?user_id=' + me.id);
+    const goals = await api('GET', '/goals?user_id=' + me.id);
+    const goalList = Array.isArray(goals) ? goals : [];
+
+    // Append progress section
+    const section = document.createElement('div');
+    section.className = 'prof-sect';
+    section.innerHTML = `
+        <h2>📈 Прогресс тренировок</h2>
+        <div class="progress-grid">
+            <div class="prog-card"><span class="st-num">${stats.total_reps||0}</span><div class="st-lbl">Всего повторений</div></div>
+            <div class="prog-card"><span class="st-num">${stats.total_exercises||0}</span><div class="st-lbl">Упражнений</div></div>
+            <div class="prog-card"><span class="st-num">${stats.total_plans||0}</span><div class="st-lbl">Программ</div></div>
+            <div class="prog-card"><span class="st-num">${(stats.by_day||[]).length}</span><div class="st-lbl">Дней</div></div>
+        </div>
+        ${(stats.by_exercise||[]).length ? '<h3 style="font-size:.9rem;margin-bottom:10px;color:var(--txt2)">По упражнениям</h3>' + (stats.by_exercise||[]).map(e => `
+            <div class="goal-item">
+                <div class="goal-info">${esc(e.exercise_name)} <small>${e.total_reps} повторений за ${e.sessions} подходов</small></div>
+            </div>`).join('') : ''}
+        <h3 style="font-size:.9rem;margin:16px 0 10px;color:var(--txt2)">🎯 Цели</h3>
+        <div id="goalsList">${goalList.length ? goalList.map(g => `
+            <div class="goal-item ${g.achieved?'done':''}">
+                <div class="goal-info">${esc(g.goal_text)} ${g.target_exercise?'<small>'+esc(g.target_exercise)+': '+g.target_reps+' повторений</small>':''}</div>
+                ${!g.achieved ? `<button class="btn btn-green btn-sm" onclick="achieveGoal(${g.id})">✓</button>` : '<span style="color:var(--green);font-size:.8rem">✓ Достигнута</span>'}
+            </div>`).join('') : '<div style="color:var(--txt3);font-size:.84rem">Нет целей</div>'}
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+            <div class="fg" style="flex:1;min-width:160px"><label>Новая цель</label><input id="newGoalText" type="text" placeholder="Например: 100 отжиманий"></div>
+            <button class="btn btn-outline btn-sm" onclick="addGoal()" style="height:38px">+ Добавить</button>
+        </div>`;
+    profMain.appendChild(section);
+}
+
+async function addGoal() {
+    const text = val('newGoalText').trim();
+    if (!text || !me) return;
+    await api('POST', '/goals', { user_id: me.id, goal_text: text });
+    toast('Цель добавлена', 'ok');
+    await fillProfile();
+    buildNav('profile');
+}
+
+async function achieveGoal(goalId) {
+    await api('PUT', '/goals/' + goalId, { achieved: 1 });
+    toast('Цель достигнута! 🎉', 'ok');
+    await fillProfile();
+    buildNav('profile');
+}
+
+// ══════════════════════════════════════════
+// SENSOR HISTORY TABLE
+// ══════════════════════════════════════════
+let shPage = 0;
+const SH_PER_PAGE = 20;
+
+async function loadSensorHistory(page) {
+    if (!me) return;
+    shPage = page || 0;
+    const el = document.getElementById('sensorHistoryContent');
+    el.innerHTML = '<div class="loading"><div class="spinner"></div>Загрузка истории...</div>';
+
+    const offset = shPage * SH_PER_PAGE;
+    const res = await api('GET', '/sensor_history?username=' + encodeURIComponent(me.username) + '&limit=' + SH_PER_PAGE + '&offset=' + offset);
+
+    if (!res.success || !res.data || !res.data.length) {
+        el.innerHTML = '<div class="empty"><span>📭</span><p>Нет записей показателей.</p></div>';
+        return;
+    }
+
+    const total = res.total || 0;
+    const totalPages = Math.ceil(total / SH_PER_PAGE);
+
+    let html = '<div class="sh-table-wrap"><table class="sh-table"><thead><tr>';
+    html += '<th>Дата и время</th><th>❤️ ЧСС</th><th>😰 Стресс</th><th>💪 Мышцы</th><th>🧠 ЭЭГ 0–100</th><th>🧠 Бета</th><th>Состояние</th>';
+    html += '</tr></thead><tbody>';
+
+    for (const row of res.data) {
+        const dt = row.recorded_at ? new Date(row.recorded_at).toLocaleString('ru-RU') : '—';
+        const stateClass = getStateClass(row.state);
+        html += '<tr>';
+        html += '<td>' + esc(dt) + '</td>';
+        html += '<td style="color:' + getBpmColor(row.bpm) + ';font-weight:600">' + Math.round(row.bpm || 0) + '</td>';
+        html += '<td>' + Math.round(row.stress || 0) + '%</td>';
+        html += '<td>' + Math.round(row.muscle || 0) + '%</td>';
+        html += '<td>' + Math.round(row.alpha || 0) + '</td>';
+        html += '<td>' + Math.round(row.beta || 0) + '</td>';
+        html += '<td><span class="sh-state ' + stateClass + '">' + esc(row.state || 'Ожидание') + '</span></td>';
+        html += '</tr>';
+    }
+
+    html += '</tbody></table></div>';
+
+    // Пагинация
+    html += '<div class="sh-pager">';
+    html += '<span>Показано ' + (offset + 1) + '–' + Math.min(offset + SH_PER_PAGE, total) + ' из ' + total + '</span>';
+    html += '<div class="sh-pager-btns">';
+    if (shPage > 0) html += '<button class="btn btn-outline btn-sm" onclick="loadSensorHistory(' + (shPage - 1) + ')">← Назад</button>';
+    if (shPage < totalPages - 1) html += '<button class="btn btn-outline btn-sm" onclick="loadSensorHistory(' + (shPage + 1) + ')">Вперёд →</button>';
+    html += '</div></div>';
+
+    el.innerHTML = html;
+}
+
+function getStateClass(state) {
+    if (!state) return 'sh-state s-wait';
+    const s = state.toLowerCase();
+    if (s.includes('норм')) return 's-norm';
+    if (s.includes('стресс')) return 's-stress';
+    if (s.includes('аритм')) return 's-arrhythm';
+    if (s.includes('перегрузк')) return 's-overload';
+    return 's-wait';
+}
+
+function getBpmColor(bpm) {
+    if (!bpm || bpm === 0) return 'var(--txt3)';
+    if (bpm < 60) return '#3b82f6';
+    if (bpm > 100) return '#ef4444';
+    return '#00ff88';
+}
+
+// Автозагрузка истории и привязка ESP при открытии дашборда
+const _origInitDash = initDash;
+initDash = function() {
+    if (me && me.username) {
+        api('POST', '/esp/bind', { username: me.username });
+        api('POST', '/sensor_recording', { username: me.username, active: false });
+        loadSensorHistory(0);
+        loadLatestSensorSnapshot();
+    }
+    _origInitDash();
+};
+
+</script>
+</body>
+</html>
